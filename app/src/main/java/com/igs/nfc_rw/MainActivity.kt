@@ -1,6 +1,9 @@
 package com.igs.nfc_rw
 
+
+import android.nfc.NfcAdapter
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -16,33 +19,57 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.igs.nfc_rw.data.NFCReader
 import com.igs.nfc_rw.ui.ExpandableCard
+import com.igs.nfc_rw.ui.NFCReaderUI
 import com.igs.nfc_rw.ui.theme.NFCReaderTheme
+import com.igs.nfc_rw.utils.Logger
 
 
 class MainActivity : ComponentActivity() {
+    private var nfcAdapter: NfcAdapter? = null
+    private val loggerHead = "MainActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             NFCReaderTheme {
-                NFCReaderPreview()
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    NFCReaderApp()
+                }
             }
         }
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+
+        val handleNfcInitError: (String) -> Unit = { message ->
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            Logger.d(loggerHead, message)
+            finish()
+        }
+
+        if (nfcAdapter == null) {
+            handleNfcInitError("NFC is not available on this device")
+            return
+        }
+        Logger.d(loggerHead, "NFC is available on this device")
+        if (!nfcAdapter!!.isEnabled) {
+            handleNfcInitError("NFC is not enabled on this device")
+            return
+        }
+        Logger.d(loggerHead, "NFC is enabled on this device")
+
     }
+
+
+//    override fun onResume() {
+//        super.onResume()
+//        nfcAdapter?.enableForegroundDispatch(this, null, null, null)
+//    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun NFCReaderPreview() {
-    Surface(modifier = Modifier.fillMaxSize()) {
-        NFCReaderApp()
-    }
-}
-
-
-@Composable
 fun NFCReaderApp() {
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -50,7 +77,7 @@ fun NFCReaderApp() {
 
     ) {
         TopBar()
-        NFCReader()
+        NFCReaderUI()
         BottomBar()
     }
 }
@@ -68,8 +95,6 @@ fun TopBar() {
         },
     )
 }
-
-
 
 
 @Preview

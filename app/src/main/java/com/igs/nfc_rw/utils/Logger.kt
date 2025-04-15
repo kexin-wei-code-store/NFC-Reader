@@ -15,3 +15,4 @@ object Logger {
 
     fun getLogs(): List<String> = logs.toList()
 }
+

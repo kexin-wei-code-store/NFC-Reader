@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">NFC RW</string>
+    <string name="app_top_bar">NFC Reader</string>
     <string name="nfc_reading">nfc_reading</string>
     <string name="start_reading">Start Reading</string>
-    <string name="greeting_igs">Welcome to Use NFC Reader</string>
+    <string name="greeting_igs">Welcome to Use IGS Login System</string>
     <string name="nfc_not_detected">No NFC detected on this device</string>
     <string name="nfc_not_enabled">NFC is not enabled on this device</string>
     <string name="nfc_not_supported">NFC is not supported on this device</string>
@@ -10,4 +11,5 @@
     <string name="write_fail">Write failed</string>
     <string name="read_success">Read succeeded</string>
     <string name="read_fail">Read failed</string>
+    <string name="button_register">Register New Card</string>
 </resources>

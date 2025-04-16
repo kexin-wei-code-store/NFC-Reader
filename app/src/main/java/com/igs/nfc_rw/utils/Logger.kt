@@ -13,5 +13,12 @@ object Logger {
         Log.d(tag, message)
     }
 
+    fun e(tag: String, message: String, throwable: Throwable? = null) {
+        val logMessage = "[$tag] $message"
+        logs.add(logMessage)
+        Log.e(tag, message, throwable)
+    }
+
     fun getLogs(): List<String> = logs.toList()
 }
+

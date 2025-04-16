@@ -1,6 +1,10 @@
 package com.igs.nfc_rw
 
+
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -15,32 +19,72 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.igs.nfc_rw.data.NFCReader
 import com.igs.nfc_rw.ui.ExpandableCard
+import com.igs.nfc_rw.ui.WelcomeUI
 import com.igs.nfc_rw.ui.theme.NFCReaderTheme
+import com.igs.nfc_rw.utils.Logger
 
 
 class MainActivity : ComponentActivity() {
+    private var mNfcReader: NFCReader? = null
+
+    private val loggerHead = "MainActivity"
+
+    @SuppressLint("UnsafeIntentLaunch")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             NFCReaderTheme {
-                NFCReaderPreview()
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    NFCReaderApp()
+                }
             }
         }
+
+        mNfcReader = NFCReader(this)
+
+        val handleNfcInitError: (String) -> Unit = { message ->
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            Logger.d(loggerHead, message)
+            finish()
+        }
+
+        mNfcReader?.isSupported()?.let {
+            if (!it)
+                handleNfcInitError("NFC is not available on this device")
+        }
+
+        mNfcReader?.isEnabled()?.let {
+            if (!it)
+                handleNfcInitError("NFC is not enabled on this device")
+        }
     }
+
+
+    override fun onResume() {
+        super.onResume()
+        mNfcReader?.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mNfcReader?.onPause()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        Logger.d(loggerHead, "onNewIntent")
+        mNfcReader?.handleIntent(intent)
+    }
+
+
 }
+
 
 @Preview(showBackground = true)
-@Composable
-fun NFCReaderPreview() {
-    Surface(modifier = Modifier.fillMaxSize()) {
-        NFCReaderApp()
-    }
-}
-
-
 @Composable
 fun NFCReaderApp() {
     Column(
@@ -50,7 +94,7 @@ fun NFCReaderApp() {
 
     ) {
         TopBar()
-        NFCReader()
+        WelcomeUI()
         BottomBar()
     }
 }
@@ -64,15 +108,15 @@ fun TopBar() {
             titleContentColor = MaterialTheme.colorScheme.primary
         ),
         title = {
-            Text(text = "NFC Reader", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = stringResource(R.string.app_top_bar),
+                style = MaterialTheme.typography.titleLarge
+            )
         },
     )
 }
 
 
-
-
-@Preview
 @Composable
 fun BottomBar() {
     Box {

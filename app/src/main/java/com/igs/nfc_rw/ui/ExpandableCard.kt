@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,12 +30,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.igs.nfc_rw.ui.theme.Shapes
-import androidx.compose.runtime.LaunchedEffect
 import com.igs.nfc_rw.utils.Logger
 
 @Composable
 fun ExpandableCard() {
-    var expandedState by remember { mutableStateOf(false) }
+    var expandedState by remember { mutableStateOf(true) }
     val rotationState by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f
     )
@@ -51,7 +51,7 @@ fun ExpandableCard() {
             .animateContentSize(
                 animationSpec = tween(
                     durationMillis = 300,
-                   easing = LinearOutSlowInEasing
+                    easing = LinearOutSlowInEasing
                 )
             ),
         shape = Shapes.medium,

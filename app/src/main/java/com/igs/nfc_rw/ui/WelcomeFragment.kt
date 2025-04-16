@@ -24,7 +24,7 @@ import com.igs.nfc_rw.R
 import com.igs.nfc_rw.utils.Logger
 
 @Composable
-fun WelcomeUI() {
+fun WelcomeFragment() {
     val padding = 30f
     Box(
         modifier = Modifier
@@ -66,5 +66,5 @@ private fun onClickButton() {
 @Preview(showBackground = true)
 @Composable
 fun NFCReaderUIPreview() {
-    WelcomeUI()
+    WelcomeFragment()
 }

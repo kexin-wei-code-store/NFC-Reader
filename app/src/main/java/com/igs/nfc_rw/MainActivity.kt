@@ -21,16 +21,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.igs.nfc_rw.data.AppDatabase
+import com.igs.nfc_rw.data.Attendee
+import com.igs.nfc_rw.data.AttendeeDAO
 import com.igs.nfc_rw.data.NFCReader
+import com.igs.nfc_rw.ui.AttendeeUI
 import com.igs.nfc_rw.ui.ExpandableCard
-import com.igs.nfc_rw.ui.WelcomeUI
+import com.igs.nfc_rw.ui.WelcomeFragment
 import com.igs.nfc_rw.ui.theme.NFCReaderTheme
 import com.igs.nfc_rw.utils.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : ComponentActivity() {
     private var mNfcReader: NFCReader? = null
-
+    private var mDatabase: AppDatabase? = null
+    private var mDao: AttendeeDAO? = null
     private val loggerHead = "MainActivity"
 
     @SuppressLint("UnsafeIntentLaunch")
@@ -44,22 +54,44 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        mNfcReader = NFCReader(this)
+//        mNfcReader = NFCReader(this)
+//
+//        val handleNfcInitError: (String) -> Unit = { message ->
+//            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+//            Logger.d(loggerHead, message)
+//            finish()
+//        }
+//
+//        mNfcReader?.isSupported()?.let {
+//            if (!it)
+//                handleNfcInitError("NFC is not available on this device")
+//        }
+//
+//        mNfcReader?.isEnabled()?.let {
+//            if (!it)
+//                handleNfcInitError("NFC is not enabled on this device")
+//        }
 
-        val handleNfcInitError: (String) -> Unit = { message ->
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-            Logger.d(loggerHead, message)
-            finish()
+        mDatabase = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "attendee_database"
+        ).build()
+        mDao = mDatabase?.attendeeDao()
+
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                val newUser = Attendee(firstName = "John", lastName = "Doe", workBadgeId = "123456")
+                mDatabase?.attendeeDao()?.insert(newUser)
+            }
+            Logger.d(loggerHead, "User added to database")
+            Toast.makeText(this@MainActivity, "User added to database", Toast.LENGTH_SHORT).show()
         }
 
-        mNfcReader?.isSupported()?.let {
-            if (!it)
-                handleNfcInitError("NFC is not available on this device")
-        }
-
-        mNfcReader?.isEnabled()?.let {
-            if (!it)
-                handleNfcInitError("NFC is not enabled on this device")
+        lifecycleScope.launch {
+            val data = withContext(Dispatchers.IO) {
+                mDao?.getAll() // Assume getAll returns List<YourEntity>
+            }
+            Logger.d(loggerHead, "Attendees: ${data?.size}")
         }
     }
 
@@ -94,7 +126,8 @@ fun NFCReaderApp() {
 
     ) {
         TopBar()
-        WelcomeUI()
+        WelcomeFragment()
+        AttendeeUI()
         BottomBar()
     }
 }

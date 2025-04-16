@@ -8,6 +8,7 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.MifareClassic
 import android.os.Build
+import android.widget.Toast
 import com.igs.nfc_rw.utils.Logger
 
 enum class NFCStatus {
@@ -80,6 +81,7 @@ class NFCReader(private val activity: Activity) {
             NfcAdapter.ACTION_TAG_DISCOVERED == action
         ) {
             Logger.d(loggerHead, "Tag discovered")
+            Toast.makeText(activity, "Tag discovered", Toast.LENGTH_SHORT).show()
             val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
             tag?.readTag()
         }

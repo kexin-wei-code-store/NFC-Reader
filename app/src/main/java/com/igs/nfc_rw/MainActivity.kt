@@ -6,6 +6,8 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NfcAdapter
+import android.nfc.Tag
+import android.nfc.tech.MifareClassic
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -88,24 +90,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        nfcAdapter?.enableReaderMode(
+        nfcAdapter?.enableForegroundDispatch(
             this,
-            { tag ->
-//                // Handle tag discovery here
-//                val tagId = tag.id.toHexString()
-//                val data = readFromTag(tag)
-//
-//                runOnUiThread {
-//                    // Update UI
-//                    tagInfoTextView.text = "Tag ID: $tagId\nData: $data"
-//                }
-                Logger.d(loggerHead, "Tag discovered")
-            },
-            NfcAdapter.FLAG_READER_NFC_A or
-                    NfcAdapter.FLAG_READER_NFC_B or
-                    NfcAdapter.FLAG_READER_NFC_F or
-                    NfcAdapter.FLAG_READER_NFC_V,
-            null
+            nfcPendingIntent,
+            nfcIntentFiltersArarry,
+            nfcTechListsArray
         )
     }
 
@@ -114,22 +103,60 @@ class MainActivity : ComponentActivity() {
         nfcAdapter?.disableForegroundDispatch(this)
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        Logger.d(loggerHead, "onNewIntent")
+        handleIntent(intent)
+    }
+
     private fun handleIntent(intent: Intent) {
         val action = intent.action
-        Logger.d(loggerHead, "Action: $action")
-        if (NfcAdapter.ACTION_TAG_DISCOVERED == action) {
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED == action ||
+            NfcAdapter.ACTION_TECH_DISCOVERED == action ||
+            NfcAdapter.ACTION_TAG_DISCOVERED == action
+        ) {
             Logger.d(loggerHead, "Tag discovered")
-            val tag = intent.getStringExtra(NfcAdapter.EXTRA_TAG)
-            tag?.let {
-                // get the tag id
-                val tagId = it
-                // do something with the tag id
-                Logger.d(loggerHead, "Tag ID: $tagId")
+            Toast.makeText(this, "Tag detected", Toast.LENGTH_SHORT).show()
+            val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
+            tag?.readTag()
+        }
+    }
+
+    private fun Tag.readTag() {
+        Logger.d(loggerHead, "Tag ID: $id")
+        for (tech in this.techList) {
+            if (tech == MifareClassic::class.java.name) {
+                Logger.d(loggerHead, "Tag type: MifareClassic")
+                val mifareTag = MifareClassic.get(this)
+                try {
+                    mifareTag?.connect()
+                    val stringBuilder = StringBuilder()
+
+                    if (mifareTag?.authenticateSectorWithKeyA(
+                            0,
+                            MifareClassic.KEY_DEFAULT
+                        ) == true
+                    ) {
+                        val block = 0
+                        val data = mifareTag.readBlock(block)
+                        stringBuilder.append("Block $block: ${data.toHexString()}")
+                    }
+                    mifareTag?.close()
+
+                    Logger.d(loggerHead, "The data is:\n$stringBuilder")
+
+                } catch (e: Exception) {
+                    Logger.e(loggerHead, "Error reading tag", e)
+                }
             }
         }
+    }
 
+    private fun ByteArray.toHexString(): String {
+        return joinToString("") { "%02x".format(it) }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

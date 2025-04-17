@@ -11,5 +11,14 @@
     <string name="write_fail">Write failed</string>
     <string name="read_success">Read succeeded</string>
     <string name="read_fail">Read failed</string>
-    <string name="button_register">Register New Card</string>
+    <string name="button_go_register_staff">Register New Card</string>
+    <string name="button_go_register_visitor">Visitor Register</string>
+    <string name="button_go_visitor_check_out">Visitor Check Out</string>
+    <string name="button_go_home">Home</string>
+    <string name="button_register">Register</string>
+    <string name="staff_register_title">Please enter your details</string>
+    <string name="visitor_register_title">Please enter your details</string>
+    <string name="staff_register_description">Tab Your Work Badge\n ID will be displayed automatically</string>
+    <string name="visitor_register_description">After filled in, kindly press Register</string>
+
 </resources>

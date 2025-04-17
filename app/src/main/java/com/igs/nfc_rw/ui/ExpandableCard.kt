@@ -34,7 +34,7 @@ import com.igs.nfc_rw.utils.Logger
 
 @Composable
 fun ExpandableCard() {
-    var expandedState by remember { mutableStateOf(true) }
+    var expandedState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(
         targetValue = if (expandedState) 180f else 0f
     )

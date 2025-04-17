@@ -20,12 +20,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.igs.nfc_rw.R
 import com.igs.nfc_rw.utils.Logger
 
 @Composable
-fun WelcomeUI() {
+fun WelcomeUI(navController: NavController) {
     val padding = 30f
+    val loggerHeader = "WelcomeUI"
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -41,7 +44,7 @@ fun WelcomeUI() {
                 text = stringResource(R.string.greeting_igs),
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(top = padding.dp)
             )
             Image(
@@ -50,21 +53,38 @@ fun WelcomeUI() {
                 contentDescription = "NFC Reading Icon",
             )
             Button(
-                onClick = ::onClickButton,
+                onClick = {
+                    Logger.d(loggerHeader, "Button clicked")
+                    navController.navigate(Routes.ATTENDEE_REGISTER_UI)
+                },
+            ) {
+                Text(stringResource(R.string.button_go_register_staff))
+            }
+
+            Button(
+                onClick = {
+                    Logger.d(loggerHeader, "Button clicked")
+                    navController.navigate(Routes.VISITOR_REGISTER_UI)
+                },
+            ) {
+                Text(stringResource(R.string.button_go_register_visitor))
+            }
+
+            Button(
+                onClick = {
+                    Logger.d(loggerHeader, "Button clicked")
+                    navController.navigate(Routes.VISITOR_LIST_UI)
+                },
                 modifier = Modifier.padding(bottom = padding.dp)
             ) {
-                Text(stringResource(R.string.button_register))
+                Text(stringResource(R.string.button_go_visitor_check_out))
             }
         }
     }
 }
 
-private fun onClickButton() {
-    Logger.d("MainActivity", "Button clicked")
-}
-
 @Preview(showBackground = true)
 @Composable
 fun NFCReaderUIPreview() {
-    WelcomeUI()
+    WelcomeUI(navController = rememberNavController())
 }

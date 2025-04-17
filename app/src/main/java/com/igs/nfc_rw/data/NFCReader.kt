@@ -24,6 +24,7 @@ class NFCReader(private val activity: Activity) {
     private val mTechListsArray: Array<Array<String>>? = null
     var status: NFCStatus = NFCStatus.UNINITIALIZED
     private val loggerHead = "NFCReader"
+    var lastReadingTagId: String? = null
 
 
     init {
@@ -101,22 +102,24 @@ class NFCReader(private val activity: Activity) {
 
     private fun Tag.readTag() {
         Logger.d(loggerHead, "Tag ID: $id")
+        lastReadingTagId = id.toHexString()
+        /** left for debug
         val result = StringBuilder()
 
         for (tech in this.techList) {
-            if (tech == MifareClassic::class.java.name) {
-                val mifareTag = MifareClassic.get(this)
-                if (mifareTag == null) {
-                    Logger.d(loggerHead, "Tag type: Unknown")
-                    return
-                }
-                Logger.d(loggerHead, "Tag type: MifareClassic")
-                result.append("Tag ID: ${id.toHexString()}\n")
-                result.append(readMemory(mifareTag))
-            }
+        if (tech == MifareClassic::class.java.name) {
+        val mifareTag = MifareClassic.get(this)
+        if (mifareTag == null) {
+        Logger.d(loggerHead, "Tag type: Unknown")
+        return
         }
-
+        Logger.d(loggerHead, "Tag type: MifareClassic")
+        result.append("Tag ID: ${id.toHexString()}\n")
+        result.append(readMemory(mifareTag))
+        }
+        }
         Logger.d(loggerHead, result.toString())
+         **/
     }
 
     private fun readMemory(mifareTag: MifareClassic): String {
